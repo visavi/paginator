@@ -1,6 +1,6 @@
 {
 	"name": "visavi/paginator",
-	"description": "",
+	"description": "Class to display pagination",
 	"homepage": "http://visavi.net",
 	"license": "MIT",
 	"authors": [
@@ -13,7 +13,7 @@
 	"require": {
 		"php": ">=5.4.0"
 	},
-	"minimum-stability": "stable",
+	"minimum-stability": "dev",
 	"autoload": {
 		"psr-4": {
 			"Visavi\\": "src/"
