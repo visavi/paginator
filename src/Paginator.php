@@ -13,9 +13,36 @@ namespace Visavi;
 
 class Paginator {
 
-	function __construct($argument = null)
+	public static $pageName = 'page';
+	public static $template = 'views/bootstrap.php';
+
+	/**
+	 * Путь к пользовательскому шаблону со страницами
+	 * @param string $path Путь к файлу
+	 */
+	public static function setTemplate($path = null)
 	{
-		# code...
+		if (file_exists($path)) {
+			self::$template = $path;
+		}
+	}
+
+	/**
+	 * Установка переменной имени текущей страницы
+	 * @param string $name Имя переменной
+	 */
+	public static function setPageName($name)
+	{
+		self::$pageName = $name;
+	}
+
+	/**
+	 * Получение текущей страницы
+	 * @return integer Номер страницы
+	 */
+	public static function getCurrentPage()
+	{
+		return ! empty($_GET[self::$pageName]) ? abs(intval($_GET[self::$pageName])) : 1;
 	}
 
 	/**
@@ -26,7 +53,10 @@ class Paginator {
 	public static function pagination($page)
 	{
 		if ($page['total'] > 0) {
+
+			$pagename = self::$pageName;
 			if (empty($page['crumbs'])) $page['crumbs'] = 3;
+			if (empty($page['current'])) $page['current'] = self::getCurrentPage();
 
 			$pages = [];
 			$idx_fst = max($page['current'] - $page['crumbs'], 1);
@@ -87,31 +117,21 @@ class Paginator {
 				];
 			}
 
-			return self::render('pagination', compact('pages'));
+			return self::viewTemplate(compact('pages', 'pagename'));
 		}
 	}
 
 	/**
-	 * Получение текущей страницы
-	 * @return integer номер страницы
-	 */
-	public static function currentPage()
-	{
-		return ! empty($_GET['page']) ? abs(intval($_GET['page'])) : 1;
-	}
-
-	/**
 	 * Вывод шаблона
-	 * @param  string $view   Имя шаблона
 	 * @param  array  $params Массив переменных
 	 * @return string         Сформированный шаблон
 	 */
-	protected static function render($view, $params = [])
+	protected static function viewTemplate($params = [])
 	{
 		extract($params);
 		ob_start();
 
-		include ('views/'.$view.'.php');
+		include (self::$template);
 
 		return ob_get_clean();
 	}
