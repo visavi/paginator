@@ -7,7 +7,8 @@
 
 ## Пример использования
 
-```
+```php
+<?php
 include 'src/Paginator.php';
 use Visavi\Paginator as Paginator;
 
