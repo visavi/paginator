@@ -13,6 +13,8 @@ namespace Visavi;
 
 class Paginator {
 
+	public static $limit    = 10;
+	public static $crumbs   = 3;
 	public static $pageName = 'page';
 	public static $template = 'views/bootstrap.php';
 
@@ -37,6 +39,24 @@ class Paginator {
 	}
 
 	/**
+	 * Установка переменной количества элементов на страницу
+	 * @param string $limit количество элементов
+	 */
+	public static function setLimit($limit)
+	{
+		self::$limit = $limit;
+	}
+
+	/**
+	 * Установка переменной количества выводимых страниц
+	 * @param string $limit количество страниц
+	 */
+	public static function setCrumbs($crumbs)
+	{
+		self::$crumbs = $crumbs;
+	}
+
+	/**
 	 * Получение текущей страницы
 	 * @return integer Номер страницы
 	 */
@@ -55,12 +75,20 @@ class Paginator {
 		if ($page['total'] > 0) {
 
 			$pagename = self::$pageName;
-			if (empty($page['crumbs'])) $page['crumbs'] = 3;
+			if (empty($page['limit'])) $page['limit'] = self::$limit;
+			if (empty($page['crumbs'])) $page['crumbs'] = self::$crumbs;
 			if (empty($page['current'])) $page['current'] = self::getCurrentPage();
 
 			$pages = [];
+			$pg_cnt = ceil($page['total'] / $page['limit']);
+
+			if ($page['current'] > $pg_cnt) {
+				$page['current'] = $pg_cnt;
+			}
+
+
 			$idx_fst = max($page['current'] - $page['crumbs'], 1);
-			$idx_lst = min($page['current'] + $page['crumbs'], $page['total']);
+			$idx_lst = min($page['current'] + $page['crumbs'], $pg_cnt);
 
 			if ($page['current'] != 1) {
 				$pages[] = [
@@ -69,6 +97,7 @@ class Paginator {
 					'name' => '«',
 				];
 			}
+
 			if ($page['current'] > $page['crumbs'] + 1) {
 				$pages[] = [
 					'page' => 1,
@@ -82,6 +111,7 @@ class Paginator {
 					];
 				}
 			}
+
 			for ($i = $idx_fst; $i <= $idx_lst; $i++) {
 				if ($i == $page['current']) {
 					$pages[] = [
@@ -96,20 +126,22 @@ class Paginator {
 					];
 				}
 			}
-			if ($page['current'] < $page['total'] - $page['crumbs']) {
-				if ($page['current'] != $page['total'] - $page['crumbs'] - 1) {
+
+			if ($page['current'] < $pg_cnt - $page['crumbs']) {
+				if ($page['current'] != $pg_cnt - $page['crumbs'] - 1) {
 					$pages[] = [
 						'separator' => true,
 						'name' => ' ... ',
 					];
 				}
 				$pages[] = [
-					'page' => $page['total'],
-					'title' => $page['total'] . ' страница',
-					'name' => $page['total'],
+					'page' => $pg_cnt,
+					'title' => $pg_cnt.' страница',
+					'name' => $pg_cnt,
 				];
 			}
-			if ($page['current'] != $page['total']) {
+
+			if ($page['current'] != $pg_cnt) {
 				$pages[] = [
 					'page' => $page['current'] + 1,
 					'title' => 'Следующая',
